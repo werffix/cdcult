@@ -199,15 +199,114 @@ function sendEmail(formData) {
 });
 
 // Функция отправки данных (демонстрация)
+// Функция отправки данных в Google Таблицу через Apps Script
 function sendEmail(formData) {
-    // Для демонстрации используем alert
-    alert('Спасибо за заполнение анкеты! Ваши данные были отправлены (в реальном проекте они пошли бы на сервер).');
-    
-    console.log('Отправленные данные:', formData);
-    
-    // Сбрасываем форму
-    resetForm();
+    // ВСТАВЬТЕ СЮДА URL ИЗ ШАГА 2!
+    const googleScriptUrl = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; // ← ЗАМЕНИТЬ!
+
+    // Показываем спиннер или сообщение о загрузке (необязательно)
+    showPopup('Отправка...', false);
+
+    fetch(googleScriptUrl, {
+        method: 'POST',
+        mode: 'no-cors', // Обход CORS - важно для внешнего запроса
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+    })
+    .then(() => {
+        // Успешная отправка (в режиме no-cors мы не получаем деталей, но считаем успешной)
+        hidePopup(); // Скрываем предыдущее сообщение
+        showPopup('Ваш релиз успешно отправлен!', true); // Показываем успех
+        resetForm(); // Сбрасываем форму
+    })
+    .catch(error => {
+        console.error('Ошибка при отправке данных в Google Таблицу:', error);
+        hidePopup();
+        showPopup('Произошла ошибка при отправке формы. Напишите нам в Telegram @cdcult_records', true);
+    });
 }
+
+// Функция для показа модального окна
+function showPopup(message, isFinal = false) {
+    // Удаляем старое окно, если оно есть
+    const existingPopup = document.getElementById('custom-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+
+    // Создаем затемненный фон
+    const overlay = document.createElement('div');
+    overlay.id = 'custom-popup';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        font-family: 'Segoe UI', sans-serif;
+    `;
+
+    // Создаем само всплывающее окно
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        background-color: #111;
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        max-width: 80%;
+        width: 400px;
+        box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+        animation: fadeIn 0.3s ease-out;
+    `;
+    popup.innerHTML = `<p style="margin: 0; font-size: 18px;">${message}</p>`;
+
+    // Если это финальное сообщение (успех/ошибка), добавляем кнопку "ОК"
+    if (isFinal) {
+        const button = document.createElement('button');
+        button.textContent = 'ОК';
+        button.style.cssText = `
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        `;
+        button.onclick = () => hidePopup();
+        popup.appendChild(button);
+    }
+
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+}
+
+// Функция для скрытия модального окна
+function hidePopup() {
+    const popup = document.getElementById('custom-popup');
+    if (popup) {
+        popup.remove();
+    }
+}
+
+// Добавляем анимацию в CSS (можно вставить в style.css или в <style>)
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+`;
+document.head.appendChild(style);
 
 // Функция сброса формы
 function resetForm() {
@@ -219,4 +318,5 @@ function resetForm() {
     document.getElementById('tracksList').innerHTML = '';
     document.getElementById('trackFields').style.display = 'none';
     Object.keys(selectedValues).forEach(key => selectedValues[key] = '');
+
 }
