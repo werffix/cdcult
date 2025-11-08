@@ -202,7 +202,7 @@ function sendEmail(formData) {
 // Функция отправки данных в Google Таблицу через Apps Script
 function sendEmail(formData) {
     // ВСТАВЬТЕ СЮДА URL ИЗ ШАГА 2!
-    const googleScriptUrl = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; // ← ЗАМЕНИТЬ!
+    const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbytaiN_B_Qri2nxT8wLkwIq_2yGjw4fR1LM0cy0A4aTcoEk2Pot9AmAWifbIB10fN4/exec'; // ← ЗАМЕНИТЬ!
 
     // Показываем спиннер или сообщение о загрузке (необязательно)
     showPopup('Отправка...', false);
@@ -320,3 +320,4 @@ function resetForm() {
     Object.keys(selectedValues).forEach(key => selectedValues[key] = '');
 
 }
+
